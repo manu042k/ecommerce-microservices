@@ -1,0 +1,32 @@
+version: "3.8"
+
+services:
+  keycloak:
+    image: quay.io/keycloak/keycloak:23.0
+    container_name: keycloak
+    environment:
+      KEYCLOAK_ADMIN: admin
+      KEYCLOAK_ADMIN_PASSWORD: admin
+    command: start-dev --import-realm
+    volumes:
+      - ./keycloak:/opt/keycloak/data/import
+    ports:
+      - "8080:8080"
+
+  identity-service:
+    build:
+      context: ../
+      dockerfile: services/identity-service/Dockerfile
+    container_name: identity-service
+    environment:
+      - ASPNETCORE_ENVIRONMENT=Development
+      - ASPNETCORE_HTTP_PORTS=8080
+      - Keycloak__AuthServerUrl=http://keycloak:8080/
+      - Keycloak__Realm=ecommerce-realm
+      - Keycloak__Resource=identity-client
+      - Keycloak__Credentials__Secret=your-client-secret-here
+      # Note: Update secrets in a real environment
+    ports:
+      - "5001:8080"
+    depends_on:
+      - keycloak

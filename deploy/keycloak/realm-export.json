@@ -1,0 +1,78 @@
+{
+    "id": "ecommerce-realm",
+    "realm": "ecommerce-realm",
+    "displayName": "E-Commerce Microservices Realm",
+    "enabled": true,
+    "sslRequired": "external",
+    "registrationAllowed": true,
+    "loginWithEmailAllowed": true,
+    "duplicateEmailsAllowed": false,
+    "resetPasswordAllowed": true,
+    "editUsernameAllowed": false,
+    "bruteForceProtected": true,
+    "roles": {
+        "realm": [
+            {
+                "name": "Admin",
+                "description": "Administrator role"
+            },
+            {
+                "name": "Customer",
+                "description": "Customer role"
+            }
+        ]
+    },
+    "clients": [
+        {
+            "clientId": "identity-client",
+            "enabled": true,
+            "clientAuthenticatorType": "client-secret",
+            "secret": "your-client-secret-here",
+            "redirectUris": [
+                "*"
+            ],
+            "webOrigins": [
+                "*"
+            ],
+            "publicClient": false,
+            "protocol": "openid-connect",
+            "directAccessGrantsEnabled": true,
+            "serviceAccountsEnabled": true,
+            "authorizationServicesEnabled": true,
+            "standardFlowEnabled": true,
+            "implicitFlowEnabled": false,
+            "fullScopeAllowed": true
+        }
+    ],
+    "users": [
+        {
+            "username": "admin",
+            "enabled": true,
+            "emailVerified": true,
+            "firstName": "Admin",
+            "lastName": "User",
+            "email": "admin@ecommerce.com",
+            "credentials": [
+                {
+                    "type": "password",
+                    "value": "admin",
+                    "temporary": false
+                }
+            ],
+            "realmRoles": [
+                "Admin"
+            ]
+        },
+        {
+            "username": "service-account-identity-client",
+            "enabled": true,
+            "emailVerified": true,
+            "serviceAccountClientId": "identity-client",
+            "clientRoles": {
+                "realm-management": [
+                    "realm-admin"
+                ]
+            }
+        }
+    ]
+}
