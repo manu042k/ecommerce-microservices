@@ -9,6 +9,10 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "identity-service", "identit
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "IdentityService", "services\identity-service\IdentityService.csproj", "{707046E0-13DD-4F3F-8B84-4013DFBECA0A}"
 EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "api-gateway", "api-gateway", "{D5740E39-79EC-8D71-EBC3-DD458F48E25C}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ApiGateway", "api-gateway\ApiGateway\ApiGateway.csproj", "{C255C89F-8D5B-49A9-A091-D415C7A903E4}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -31,6 +35,18 @@ Global
 		{707046E0-13DD-4F3F-8B84-4013DFBECA0A}.Release|x64.Build.0 = Release|Any CPU
 		{707046E0-13DD-4F3F-8B84-4013DFBECA0A}.Release|x86.ActiveCfg = Release|Any CPU
 		{707046E0-13DD-4F3F-8B84-4013DFBECA0A}.Release|x86.Build.0 = Release|Any CPU
+		{C255C89F-8D5B-49A9-A091-D415C7A903E4}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{C255C89F-8D5B-49A9-A091-D415C7A903E4}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{C255C89F-8D5B-49A9-A091-D415C7A903E4}.Debug|x64.ActiveCfg = Debug|Any CPU
+		{C255C89F-8D5B-49A9-A091-D415C7A903E4}.Debug|x64.Build.0 = Debug|Any CPU
+		{C255C89F-8D5B-49A9-A091-D415C7A903E4}.Debug|x86.ActiveCfg = Debug|Any CPU
+		{C255C89F-8D5B-49A9-A091-D415C7A903E4}.Debug|x86.Build.0 = Debug|Any CPU
+		{C255C89F-8D5B-49A9-A091-D415C7A903E4}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{C255C89F-8D5B-49A9-A091-D415C7A903E4}.Release|Any CPU.Build.0 = Release|Any CPU
+		{C255C89F-8D5B-49A9-A091-D415C7A903E4}.Release|x64.ActiveCfg = Release|Any CPU
+		{C255C89F-8D5B-49A9-A091-D415C7A903E4}.Release|x64.Build.0 = Release|Any CPU
+		{C255C89F-8D5B-49A9-A091-D415C7A903E4}.Release|x86.ActiveCfg = Release|Any CPU
+		{C255C89F-8D5B-49A9-A091-D415C7A903E4}.Release|x86.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
@@ -38,5 +54,6 @@ Global
 	GlobalSection(NestedProjects) = preSolution
 		{A86387A1-6CB7-E87F-8D97-922B56EDCEFC} = {5854FF58-B8C5-05C6-5BF2-ACE42193F22B}
 		{707046E0-13DD-4F3F-8B84-4013DFBECA0A} = {A86387A1-6CB7-E87F-8D97-922B56EDCEFC}
+		{C255C89F-8D5B-49A9-A091-D415C7A903E4} = {D5740E39-79EC-8D71-EBC3-DD458F48E25C}
 	EndGlobalSection
 EndGlobal

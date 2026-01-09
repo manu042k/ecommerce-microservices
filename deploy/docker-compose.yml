@@ -24,9 +24,25 @@ services:
       - Keycloak__AuthServerUrl=http://keycloak:8080/
       - Keycloak__Realm=ecommerce-realm
       - Keycloak__Resource=identity-client
-      - Keycloak__Credentials__Secret=your-client-secret-here
-      # Note: Update secrets in a real environment
-    ports:
-      - "5001:8080"
+      - Keycloak__Credentials__Secret=${KEYCLOAK_CLIENT_SECRET:-your-client-secret-here}
+      - Keycloak__AdminClientId=${KEYCLOAK_ADMIN_CLIENT_ID:-admin-cli}
+      - Keycloak__AdminClientSecret=${KEYCLOAK_ADMIN_CLIENT_SECRET:-your-admin-client-secret-here}
     depends_on:
       - keycloak
+
+  api-gateway:
+    build:
+      context: ../
+      dockerfile: api-gateway/ApiGateway/Dockerfile
+    container_name: api-gateway
+    environment:
+      - ASPNETCORE_ENVIRONMENT=Development
+      - ASPNETCORE_HTTP_PORTS=8080
+      - Keycloak__AuthServerUrl=http://keycloak:8080/
+      - Keycloak__Realm=ecommerce-realm
+      - Keycloak__Resource=identity-client
+      - Keycloak__Credentials__Secret=${KEYCLOAK_CLIENT_SECRET:-your-client-secret-here}
+    ports:
+      - "5002:8080"
+    depends_on:
+      - identity-service
