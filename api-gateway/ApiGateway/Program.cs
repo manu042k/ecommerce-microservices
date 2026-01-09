@@ -100,6 +100,7 @@ if (app.Environment.IsDevelopment())
         // This configures the Gateway to show the Identity Service's docs
         // The path '/doc/identity/swagger.json' is a route we define in YARP (appsettings)
         c.SwaggerEndpoint("/doc/identity/swagger.json", "Identity Service");
+        c.SwaggerEndpoint("/doc/catalog/swagger.json", "Catalog Service");
 
         // OAuth Client Config for the Redirect Flow
         // We load these from configuration (which comes from Env vars in docker-compose)

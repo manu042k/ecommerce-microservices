@@ -27,8 +27,32 @@ services:
       - Keycloak__Credentials__Secret=${KEYCLOAK_CLIENT_SECRET:-your-client-secret-here}
       - Keycloak__AdminClientId=${KEYCLOAK_ADMIN_CLIENT_ID:-admin-cli}
       - Keycloak__AdminClientSecret=${KEYCLOAK_ADMIN_CLIENT_SECRET:-your-admin-client-secret-here}
+    ports:
+      - "5001:8080"
     depends_on:
       - keycloak
+
+  catalog-service:
+    build:
+      context: ../
+      dockerfile: services/catalog-service/Dockerfile
+    container_name: catalog-service
+    environment:
+      - ASPNETCORE_ENVIRONMENT=Development
+      - ASPNETCORE_HTTP_PORTS=8080
+      - ConnectionStrings__DefaultConnection=Host=catalog-db;Database=catalogdb;Username=cataloguser;Password=catalogpassword
+      - ConnectionStrings__Redis=redis:6379
+      - Redis__InstanceName=CatalogService_
+      - RabbitMQ__Host=rabbitmq
+      - RabbitMQ__UserName=guest
+      - RabbitMQ__Password=guest
+    ports:
+      - "5002:8080"
+    depends_on:
+      - keycloak
+      - catalog-db
+      - redis
+      - rabbitmq
 
   api-gateway:
     build:
@@ -38,11 +62,57 @@ services:
     environment:
       - ASPNETCORE_ENVIRONMENT=Development
       - ASPNETCORE_HTTP_PORTS=8080
-      - Keycloak__AuthServerUrl=http://keycloak:8080/
-      - Keycloak__Realm=ecommerce-realm
-      - Keycloak__Resource=identity-client
-      - Keycloak__Credentials__Secret=${KEYCLOAK_CLIENT_SECRET:-your-client-secret-here}
     ports:
-      - "5002:8080"
+      - "5050:8080"
     depends_on:
       - identity-service
+      - catalog-service
+
+  # Infrastructure
+  catalog-db:
+    image: postgres:15-alpine
+    container_name: catalog-db
+    environment:
+      POSTGRES_DB: catalogdb
+      POSTGRES_USER: cataloguser
+      POSTGRES_PASSWORD: catalogpassword
+    ports:
+      - "5432:5432"
+    volumes:
+      - catalog_data:/var/lib/postgresql/data
+
+  redis:
+    image: redis:alpine
+    container_name: redis
+    ports:
+      - "6379:6379"
+
+  rabbitmq:
+    image: rabbitmq:3-management
+    container_name: rabbitmq
+    ports:
+      - "5672:5672"
+      - "15672:15672"
+    environment:
+      RABBITMQ_DEFAULT_USER: guest
+      RABBITMQ_DEFAULT_PASS: guest
+
+  # order-service:
+  #   build:
+  #     context: ../
+  #     dockerfile: services/order-service/Dockerfile
+  #   container_name: order-service
+  #   environment:
+  #     - ASPNETCORE_ENVIRONMENT=Development
+  #     - ASPNETCORE_HTTP_PORTS=8080
+  #     - Keycloak__AuthServerUrl=http://keycloak:8080/
+  #     - Keycloak__Realm=ecommerce-realm
+  #     - Keycloak__Resource=identity-client
+  #     - Keycloak__Credentials__Secret=${KEYCLOAK_CLIENT_SECRET:-your-client-secret-here}
+  #   ports:
+  #     - "5002:8080"
+  #   depends_on:
+  #     - identity-service
+
+volumes:
+  catalog_data:
