@@ -1,8 +1,12 @@
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.IdentityModel.Tokens;
 using Microsoft.OpenApi.Models;
+using BuildingBlocks.Logging;
 
 var builder = WebApplication.CreateBuilder(args);
+
+// 1. One line configuration
+builder.AddCustomLogging();
 
 builder.Services.AddCors(options =>
 {
@@ -110,6 +114,8 @@ if (app.Environment.IsDevelopment())
         c.OAuthUsePkce();
     });
 }
+
+app.UseCustomLogging();
 
 app.UseAuthentication();
 app.UseAuthorization();

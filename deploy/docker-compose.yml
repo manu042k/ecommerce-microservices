@@ -29,6 +29,8 @@ services:
       - Keycloak__AdminClientSecret=${KEYCLOAK_ADMIN_CLIENT_SECRET:-your-admin-client-secret-here}
     ports:
       - "5001:8080"
+    volumes:
+      - ./logs/identity-service:/app/logs
     depends_on:
       - keycloak
 
@@ -48,6 +50,8 @@ services:
       - RabbitMQ__Password=guest
     ports:
       - "5002:8080"
+    volumes:
+      - ./logs/catalog-service:/app/logs
     depends_on:
       - keycloak
       - catalog-db
@@ -62,6 +66,8 @@ services:
     environment:
       - ASPNETCORE_ENVIRONMENT=Development
       - ASPNETCORE_HTTP_PORTS=8080
+    volumes:
+      - ./logs/api-gateway:/app/logs
     ports:
       - "5050:8080"
     depends_on:

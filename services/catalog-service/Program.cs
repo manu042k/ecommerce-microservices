@@ -1,8 +1,12 @@
 using CatalogService.Data;
 using MassTransit;
 using Microsoft.EntityFrameworkCore;
+using BuildingBlocks.Logging;
 
 var builder = WebApplication.CreateBuilder(args);
+
+// 1. One line configuration
+builder.AddCustomLogging();
 
 // Add services to the container.
 builder.Services.AddDbContext<CatalogDbContext>(options =>
@@ -56,7 +60,9 @@ if (app.Environment.IsDevelopment())
     app.UseSwaggerUI();
 }
 
-// app.UseHttpsRedirection(); // Disable HTTPS redirection in container
+app.UseCustomLogging();
+
+app.UseHttpsRedirection(); // Disable HTTPS redirection in container
 
 app.MapControllers();
 

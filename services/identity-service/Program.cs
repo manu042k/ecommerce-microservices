@@ -2,8 +2,12 @@ using IdentityService.Services;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.IdentityModel.Tokens;
 using Microsoft.OpenApi.Models;
+using BuildingBlocks.Logging;
 
 var builder = WebApplication.CreateBuilder(args);
+
+// 1. One line configuration
+builder.AddCustomLogging();
 
 // Add services to the container.
 builder.Services.AddControllers();
@@ -95,6 +99,8 @@ app.UseSwaggerUI(c =>
 
 app.UseAuthentication();
 app.UseAuthorization();
+
+app.UseCustomLogging();
 
 app.MapControllers();
 
