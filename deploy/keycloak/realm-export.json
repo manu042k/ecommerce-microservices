@@ -23,6 +23,10 @@
             {
                 "name": "User",
                 "description": "Regular user role"
+            },
+            {
+                "name": "Ops",
+                "description": "Operations role for inventory management"
             }
         ]
     },
@@ -75,6 +79,25 @@
             "enabled": true,
             "clientAuthenticatorType": "client-secret",
             "secret": "order-secret",
+            "redirectUris": [
+                "*"
+            ],
+            "webOrigins": [
+                "*"
+            ],
+            "publicClient": false,
+            "protocol": "openid-connect",
+            "directAccessGrantsEnabled": true,
+            "serviceAccountsEnabled": true,
+            "standardFlowEnabled": true,
+            "implicitFlowEnabled": false,
+            "fullScopeAllowed": true
+        },
+        {
+            "clientId": "inventory-service",
+            "enabled": true,
+            "clientAuthenticatorType": "client-secret",
+            "secret": "inventory-secret",
             "redirectUris": [
                 "*"
             ],

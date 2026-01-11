@@ -87,6 +87,33 @@ services:
       - rabbitmq
       - catalog-service
 
+  inventory-service:
+    build:
+      context: ../
+      dockerfile: services/inventory-service/Dockerfile
+    container_name: inventory-service
+    environment:
+      - ASPNETCORE_ENVIRONMENT=Development
+      - ASPNETCORE_HTTP_PORTS=8080
+      - ConnectionStrings__DefaultConnection=Host=inventory-db;Database=inventorydb;Username=inventoryuser;Password=inventorypassword
+      - ConnectionStrings__Redis=redis:6379
+      - Redis__InstanceName=InventoryService_
+      - RabbitMQ__Host=rabbitmq
+      - RabbitMQ__UserName=guest
+      - RabbitMQ__Password=guest
+      - Keycloak__AuthServerUrl=http://keycloak:8080/
+      - Keycloak__Realm=ecommerce-realm
+      - Keycloak__Resource=inventory-service
+    ports:
+      - "5005:8080"
+    volumes:
+      - ./logs/inventory-service:/app/logs
+    depends_on:
+      - keycloak
+      - inventory-db
+      - redis
+      - rabbitmq
+
   api-gateway:
     build:
       context: ../
@@ -129,6 +156,18 @@ services:
     volumes:
       - order_data:/var/lib/postgresql/data
 
+  inventory-db:
+    image: postgres:15-alpine
+    container_name: inventory-db
+    environment:
+      POSTGRES_DB: inventorydb
+      POSTGRES_USER: inventoryuser
+      POSTGRES_PASSWORD: inventorypassword
+    ports:
+      - "5434:5432"
+    volumes:
+      - inventory_data:/var/lib/postgresql/data
+
   redis:
     image: redis:alpine
     container_name: redis
@@ -148,3 +187,4 @@ services:
 volumes:
   catalog_data:
   order_data:
+  inventory_data:
