@@ -1,0 +1,46 @@
+@baseUrl = http://localhost:5003
+@token = your-jwt-token-here
+
+### Create Order
+POST {{baseUrl}}/api/orders
+Authorization: Bearer {{token}}
+Content-Type: application/json
+
+{
+  "items": [
+    {
+      "productId": "550e8400-e29b-41d4-a716-446655440000",
+      "quantity": 2
+    },
+    {
+      "productId": "550e8400-e29b-41d4-a716-446655440001",
+      "quantity": 1
+    }
+  ],
+  "shippingAddress": "123 Main St, City, State 12345"
+}
+
+### Get User Orders
+GET {{baseUrl}}/api/orders/my-orders
+Authorization: Bearer {{token}}
+
+### Get Order by ID
+GET {{baseUrl}}/api/orders/550e8400-e29b-41d4-a716-446655440000
+Authorization: Bearer {{token}}
+
+### Update Order Status (Admin Only)
+PUT {{baseUrl}}/api/orders/550e8400-e29b-41d4-a716-446655440000/status
+Authorization: Bearer {{token}}
+Content-Type: application/json
+
+{
+  "status": 1
+}
+
+### Get Orders by Status (Admin Only)
+GET {{baseUrl}}/api/orders/by-status/0
+Authorization: Bearer {{token}}
+
+### Delete Order (Admin Only)
+DELETE {{baseUrl}}/api/orders/550e8400-e29b-41d4-a716-446655440000
+Authorization: Bearer {{token}}

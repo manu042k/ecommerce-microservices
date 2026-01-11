@@ -58,6 +58,35 @@ services:
       - redis
       - rabbitmq
 
+  order-service:
+    build:
+      context: ../
+      dockerfile: services/order-service/Dockerfile
+    container_name: order-service
+    environment:
+      - ASPNETCORE_ENVIRONMENT=Development
+      - ASPNETCORE_HTTP_PORTS=8080
+      - ConnectionStrings__DefaultConnection=Host=order-db;Database=orderdb;Username=orderuser;Password=orderpassword
+      - ConnectionStrings__Redis=redis:6379
+      - Redis__InstanceName=OrderService_
+      - RabbitMQ__Host=rabbitmq
+      - RabbitMQ__UserName=guest
+      - RabbitMQ__Password=guest
+      - Keycloak__AuthServerUrl=http://keycloak:8080/
+      - Keycloak__Realm=ecommerce-realm
+      - Keycloak__Resource=order-service
+      - CatalogService__BaseUrl=http://catalog-service:8080
+    ports:
+      - "5003:8080"
+    volumes:
+      - ./logs/order-service:/app/logs
+    depends_on:
+      - keycloak
+      - order-db
+      - redis
+      - rabbitmq
+      - catalog-service
+
   api-gateway:
     build:
       context: ../
@@ -73,6 +102,7 @@ services:
     depends_on:
       - identity-service
       - catalog-service
+      - order-service
 
   # Infrastructure
   catalog-db:
@@ -86,6 +116,18 @@ services:
       - "5432:5432"
     volumes:
       - catalog_data:/var/lib/postgresql/data
+
+  order-db:
+    image: postgres:15-alpine
+    container_name: order-db
+    environment:
+      POSTGRES_DB: orderdb
+      POSTGRES_USER: orderuser
+      POSTGRES_PASSWORD: orderpassword
+    ports:
+      - "5433:5432"
+    volumes:
+      - order_data:/var/lib/postgresql/data
 
   redis:
     image: redis:alpine
@@ -103,22 +145,6 @@ services:
       RABBITMQ_DEFAULT_USER: guest
       RABBITMQ_DEFAULT_PASS: guest
 
-  # order-service:
-  #   build:
-  #     context: ../
-  #     dockerfile: services/order-service/Dockerfile
-  #   container_name: order-service
-  #   environment:
-  #     - ASPNETCORE_ENVIRONMENT=Development
-  #     - ASPNETCORE_HTTP_PORTS=8080
-  #     - Keycloak__AuthServerUrl=http://keycloak:8080/
-  #     - Keycloak__Realm=ecommerce-realm
-  #     - Keycloak__Resource=identity-client
-  #     - Keycloak__Credentials__Secret=${KEYCLOAK_CLIENT_SECRET:-your-client-secret-here}
-  #   ports:
-  #     - "5002:8080"
-  #   depends_on:
-  #     - identity-service
-
 volumes:
   catalog_data:
+  order_data:

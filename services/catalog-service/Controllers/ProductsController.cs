@@ -89,6 +89,40 @@ public class ProductsController : ControllerBase
         return products;
     }
 
+    [HttpGet("verify")]
+    public async Task<ActionResult<List<dynamic>>> VerifyProducts([FromQuery] List<Guid> ids)
+    {
+        if (ids == null || !ids.Any())
+        {
+            return BadRequest("No product IDs provided");
+        }
+
+        var products = await _context.Products
+            .Where(p => ids.Contains(p.Id))
+            .Select(p => new { p.Id, p.Name, p.Price })
+            .ToListAsync();
+
+        return products.Cast<dynamic>().ToList();
+    }
+
+    [HttpDelete("{id}")]
+    public async Task<IActionResult> DeleteProduct(Guid id)
+    {
+        var product = await _context.Products.FindAsync(id);
+        if (product == null)
+        {
+            return NotFound();
+        }
+
+        _context.Products.Remove(product);
+        await _context.SaveChangesAsync();
+
+        // Invalidate Cache
+        await _cache.RemoveAsync($"{CacheKeyPrefix}{id}");
+
+        return NoContent();
+    }
+
     [HttpGet("{id}")]
     public async Task<ActionResult<Product>> GetProduct(Guid id)
     {

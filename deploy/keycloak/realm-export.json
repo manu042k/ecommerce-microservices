@@ -19,15 +19,23 @@
             {
                 "name": "Customer",
                 "description": "Customer role"
+            },
+            {
+                "name": "User",
+                "description": "Regular user role"
             }
         ]
     },
+    "defaultRoles": [
+        "Customer",
+        "User"
+    ],
     "clients": [
         {
             "clientId": "identity-client",
             "enabled": true,
             "clientAuthenticatorType": "client-secret",
-            "secret": "your-client-secret-here",
+            "secret": "identity-secret",
             "redirectUris": [
                 "*"
             ],
@@ -41,6 +49,87 @@
             "authorizationServicesEnabled": true,
             "standardFlowEnabled": true,
             "implicitFlowEnabled": false,
+            "fullScopeAllowed": true
+        },
+        {
+            "clientId": "catalog-service",
+            "enabled": true,
+            "clientAuthenticatorType": "client-secret",
+            "secret": "catalog-secret",
+            "redirectUris": [
+                "*"
+            ],
+            "webOrigins": [
+                "*"
+            ],
+            "publicClient": false,
+            "protocol": "openid-connect",
+            "directAccessGrantsEnabled": true,
+            "serviceAccountsEnabled": true,
+            "standardFlowEnabled": true,
+            "implicitFlowEnabled": false,
+            "fullScopeAllowed": true
+        },
+        {
+            "clientId": "order-service",
+            "enabled": true,
+            "clientAuthenticatorType": "client-secret",
+            "secret": "order-secret",
+            "redirectUris": [
+                "*"
+            ],
+            "webOrigins": [
+                "*"
+            ],
+            "publicClient": false,
+            "protocol": "openid-connect",
+            "directAccessGrantsEnabled": true,
+            "serviceAccountsEnabled": true,
+            "standardFlowEnabled": true,
+            "implicitFlowEnabled": false,
+            "fullScopeAllowed": true
+        },
+        {
+            "clientId": "api-gateway",
+            "enabled": true,
+            "clientAuthenticatorType": "client-secret",
+            "secret": "gateway-secret",
+            "redirectUris": [
+                "http://localhost:5050/*",
+                "http://api-gateway:8080/*"
+            ],
+            "webOrigins": [
+                "*"
+            ],
+            "publicClient": false,
+            "protocol": "openid-connect",
+            "directAccessGrantsEnabled": true,
+            "serviceAccountsEnabled": true,
+            "standardFlowEnabled": true,
+            "implicitFlowEnabled": false,
+            "fullScopeAllowed": true
+        },
+        {
+            "clientId": "swagger-ui",
+            "enabled": true,
+            "publicClient": true,
+            "redirectUris": [
+                "http://localhost:5001/swagger/oauth2-redirect.html",
+                "http://localhost:5002/swagger/oauth2-redirect.html",
+                "http://localhost:5003/swagger/oauth2-redirect.html",
+                "http://localhost:8080/swagger/oauth2-redirect.html"
+            ],
+            "webOrigins": [
+                "*"
+            ],
+            "protocol": "openid-connect",
+            "directAccessGrantsEnabled": false,
+            "serviceAccountsEnabled": false,
+            "standardFlowEnabled": true,
+            "implicitFlowEnabled": false,
+            "attributes": {
+                "pkce.code.challenge.method": "S256"
+            },
             "fullScopeAllowed": true
         }
     ],
@@ -73,6 +162,43 @@
                     "realm-admin"
                 ]
             }
+        },
+        {
+            "username": "testuser",
+            "enabled": true,
+            "emailVerified": true,
+            "firstName": "Test",
+            "lastName": "User",
+            "email": "testuser@ecommerce.com",
+            "credentials": [
+                {
+                    "type": "password",
+                    "value": "testuser123",
+                    "temporary": false
+                }
+            ],
+            "realmRoles": [
+                "Customer"
+            ]
+        },
+        {
+            "username": "testadmin",
+            "enabled": true,
+            "emailVerified": true,
+            "firstName": "Test",
+            "lastName": "Admin",
+            "email": "testadmin@ecommerce.com",
+            "credentials": [
+                {
+                    "type": "password",
+                    "value": "testadmin123",
+                    "temporary": false
+                }
+            ],
+            "realmRoles": [
+                "Admin",
+                "Customer"
+            ]
         }
     ]
 }
