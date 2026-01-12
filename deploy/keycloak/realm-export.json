@@ -136,6 +136,25 @@
             "fullScopeAllowed": true
         },
         {
+            "clientId": "fulfillment-service",
+            "enabled": true,
+            "clientAuthenticatorType": "client-secret",
+            "secret": "fulfillment-secret",
+            "redirectUris": [
+                "*"
+            ],
+            "webOrigins": [
+                "*"
+            ],
+            "publicClient": false,
+            "protocol": "openid-connect",
+            "directAccessGrantsEnabled": true,
+            "serviceAccountsEnabled": true,
+            "standardFlowEnabled": true,
+            "implicitFlowEnabled": false,
+            "fullScopeAllowed": true
+        },
+        {
             "clientId": "api-gateway",
             "enabled": true,
             "clientAuthenticatorType": "client-secret",

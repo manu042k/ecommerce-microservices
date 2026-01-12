@@ -143,6 +143,33 @@ services:
       - redis
       - rabbitmq
 
+  fulfillment-service:
+    build:
+      context: ../
+      dockerfile: services/fulfillment-service/Dockerfile
+    container_name: fulfillment-service
+    environment:
+      - ASPNETCORE_ENVIRONMENT=Development
+      - ASPNETCORE_HTTP_PORTS=8080
+      - ConnectionStrings__DefaultConnection=Host=fulfillment-db;Database=fulfillmentdb;Username=fulfillmentuser;Password=fulfillmentpassword
+      - ConnectionStrings__Redis=redis:6379
+      - Redis__InstanceName=FulfillmentService_
+      - RabbitMQ__Host=rabbitmq
+      - RabbitMQ__UserName=guest
+      - RabbitMQ__Password=guest
+      - Keycloak__AuthServerUrl=http://keycloak:8080/
+      - Keycloak__Realm=ecommerce-realm
+      - Keycloak__Resource=fulfillment-service
+    ports:
+      - "5006:8080"
+    volumes:
+      - ./logs/fulfillment-service:/app/logs
+    depends_on:
+      - keycloak
+      - fulfillment-db
+      - redis
+      - rabbitmq
+
   api-gateway:
     build:
       context: ../
@@ -161,6 +188,7 @@ services:
       - order-service
       - inventory-service
       - payment-service
+      - fulfillment-service
 
   # Infrastructure
   catalog-db:
@@ -211,6 +239,18 @@ services:
     volumes:
       - payment_data:/var/lib/postgresql/data
 
+  fulfillment-db:
+    image: postgres:15-alpine
+    container_name: fulfillment-db
+    environment:
+      POSTGRES_DB: fulfillmentdb
+      POSTGRES_USER: fulfillmentuser
+      POSTGRES_PASSWORD: fulfillmentpassword
+    ports:
+      - "5436:5432"
+    volumes:
+      - fulfillment_data:/var/lib/postgresql/data
+
   redis:
     image: redis:alpine
     container_name: redis
@@ -232,3 +272,4 @@ volumes:
   order_data:
   inventory_data:
   payment_data:
+  fulfillment_data:

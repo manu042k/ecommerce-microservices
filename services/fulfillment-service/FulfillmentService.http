@@ -1,0 +1,47 @@
+@host = http://localhost:5006
+@token = {{access_token}}
+
+### List shipments
+GET {{host}}/api/shipments
+Authorization: Bearer {{token}}
+Accept: application/json
+
+### Create shipment
+POST {{host}}/api/shipments
+Authorization: Bearer {{token}}
+Content-Type: application/json
+
+{
+	"orderId": "{{orderId}}",
+	"userId": "user-123",
+	"declaredValue": 125.50,
+	"totalWeight": 3.5,
+	"destination": {
+		"recipientName": "Jane Doe",
+		"line1": "123 Main St",
+		"city": "Austin",
+		"state": "TX",
+		"postalCode": "73301",
+		"country": "US"
+	},
+	"items": [
+		{
+			"productId": "{{productId}}",
+			"sku": "SKU-001",
+			"name": "Demo Widget",
+			"quantity": 1,
+			"weight": 1.2
+		}
+	]
+}
+
+### Schedule shipment
+POST {{host}}/api/shipments/{{shipmentId}}/schedule
+Authorization: Bearer {{token}}
+Content-Type: application/json
+
+{
+	"carrier": "sandbox",
+	"serviceLevel": "ground"
+}
+
