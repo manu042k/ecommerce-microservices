@@ -31,4 +31,20 @@ public class SwaggerConfigurationTests : IClassFixture<ApiGatewayApplicationFact
         oauthScheme.Flows.AuthorizationCode.TokenUrl.Should().NotBeNull();
         oauthScheme.Flows.AuthorizationCode.Scopes.Should().ContainKeys("openid", "profile");
     }
+
+    [Fact]
+    public async Task SwaggerUi_IsServedFromGatewayWithDocLinks()
+    {
+        // Arrange
+        using var client = _factory.CreateClient(new WebApplicationFactoryClientOptions { AllowAutoRedirect = false });
+
+        // Act
+        var response = await client.GetAsync("/swagger/index.html");
+        var html = await response.Content.ReadAsStringAsync();
+
+        // Assert
+        response.StatusCode.Should().Be(HttpStatusCode.OK);
+        html.Should().Contain("doc/identity/swagger.json");
+        html.Should().Contain("doc/catalog/swagger.json");
+    }
 }
