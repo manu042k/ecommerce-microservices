@@ -1,0 +1,29 @@
+@PaymentService_HostAddress = http://localhost:5204
+@access_token = replace-with-token
+
+### Create payment intent
+POST {{PaymentService_HostAddress}}/api/payments
+Authorization: Bearer {{access_token}}
+Content-Type: application/json
+
+{
+	"orderId": "11111111-1111-1111-1111-111111111111",
+	"amount": 49.99,
+	"currency": "usd",
+	"paymentMethodId": "pm_card_visa",
+	"description": "Sample order"
+}
+
+### Fetch payments (finance scope)
+GET {{PaymentService_HostAddress}}/api/payments?status=Succeeded
+Authorization: Bearer {{access_token}}
+
+### Refund payment
+POST {{PaymentService_HostAddress}}/api/payments/{{paymentId}}/refund
+Authorization: Bearer {{access_token}}
+Content-Type: application/json
+
+{
+	"amount": 10.00,
+	"reason": "partial-refund"
+}

@@ -1,96 +1,44 @@
-# Payment Service (Planning Draft)
+# Payment Service
 
-## 1. Mission & Responsibilities
+Handles payment intents, refunds, and gateway callbacks for the ecommerce stack. Built with ASP.NET Core 8, EF Core (PostgreSQL), MassTransit/RabbitMQ, and Keycloak-secured endpoints.
 
-- Accept payment intents triggered by the Order Service and return deterministic status updates.
-- Abstract external payment providers (initial target: Stripe) while keeping the core domain provider-agnostic.
-- Persist payment attempts, captures, refunds, and provider webhooks for auditability.
-- Publish domain events (`PaymentSucceeded`, `PaymentFailed`, `RefundIssued`) to notify Order, Inventory, and Fulfillment services.
-- Enforce security (Keycloak + service-to-service auth) and provide observability/alerting hooks similar to other services.
+## Features
 
-## 2. Domain Boundaries
+- Create/confirm payment intents via abstractions over Stripe (`IPaymentProvider`).
+- Persist payments, refunds, and webhook payloads for auditing.
+- Publish shared events (`IPaymentSucceeded`, `IPaymentFailed`, `IRefundIssued`) through MassTransit for downstream services.
+- Finance-only administration endpoints plus general customer policies enforced through Keycloak realm roles.
+- Webhook receiver that validates Stripe signatures (when configured) and reconciles local state.
 
-- **Owns:** Payment intents, transaction lifecycle, provider configuration, reconciliation jobs.
-- **Depends On:**
-  - Order Service: consumes `IOrderCreated` events and synchronous REST calls to initiate payments.
-  - Identity Service / Keycloak: authenticates admin/customer endpoints.
-  - External Payment Provider (Stripe sandbox initially).
-- **Produces:** Events for successful/failed payments, refund outcomes, reconciliation notifications.
+## HTTP API Surface
 
-## 3. API Surface (Draft)
+| Endpoint                                 | Auth Policy                 | Description                                                         |
+| ---------------------------------------- | --------------------------- | ------------------------------------------------------------------- |
+| `POST /api/payments`                     | `CustomersOrAdmin`          | Create a payment intent and return provider metadata/client secret. |
+| `GET /api/payments/{id}`                 | Authenticated               | Retrieve a single payment with refund history.                      |
+| `GET /api/payments`                      | `FinanceOrAdmin`            | Filter payments by order, status, or date window.                   |
+| `POST /api/payments/{id}/confirm`        | `CustomersOrAdmin`          | Force confirmation for wallets/3DS flows.                           |
+| `POST /api/payments/{id}/refund`         | `FinanceOrAdmin`            | Trigger partial/full refunds.                                       |
+| `POST /api/payments/webhooks/{provider}` | Anonymous (provider-signed) | Receive gateway callbacks (Stripe).                                 |
+| `POST /internal/payments/capture`        | Service-to-service          | Capture/confirm settlements from Fulfillment/Order services.        |
 
-### Customer/Auth Endpoints
+## Configuration
 
-1. `POST /api/payments` — Create payment intent (body: `orderId`, `amount`, `currency`, `paymentMethodId`). Returns client secret or redirect URL depending on provider.
-2. `GET /api/payments/{paymentId}` — Retrieve payment status for owned orders.
-3. `POST /api/payments/{paymentId}/confirm` — Optional manual confirmation route if wallet/redirect flows require it.
+- **PostgreSQL:** `ConnectionStrings:DefaultConnection` (defaults to `payment-db`).
+- **Redis:** optional cache/idempotency store via `ConnectionStrings:Redis` + `Redis:InstanceName`.
+- **RabbitMQ:** `RabbitMQ:{Host,UserName,Password}` for MassTransit.
+- **Keycloak:** `Keycloak:{AuthServerUrl,Realm,Resource}`; policies expect `Admin`, `Finance`, `Customer`, or `User` roles.
+- **Stripe:** set `PaymentProviders:Stripe:{ApiKey,WebhookSecret}`. When omitted, the provider runs in simulated mode for local testing.
 
-### Admin Endpoints
+## Local Development
 
-1. `GET /api/payments` — Filter by status/date/order for ops dashboards.
-2. `POST /api/payments/{paymentId}/refund` — Trigger full/partial refund.
-3. `POST /api/payments/reconcile` — Force reconciliation pass with provider (also scheduled job).
+1. Run Postgres/Redis/RabbitMQ via `docker compose up payment-service payment-db redis rabbitmq keycloak`.
+2. Configure Keycloak realm client secret `payment-secret`; assign roles to the admin/test users.
+3. Launch the service: `dotnet run --project services/payment-service/PaymentService.csproj`.
+4. Use `PaymentService.http` for quick smoke tests (requires a Bearer token from Keycloak).
 
-### Webhooks / Internal
+## Next Steps
 
-1. `POST /api/payments/webhooks/{provider}` — Endpoint to receive provider callbacks (Stripe signature validation, etc.).
-2. `POST /internal/payments/capture` — Internal MassTransit consumer to capture upon shipment (optional future use).
-
-## 4. Contracts & Messaging
-
-- **Commands**
-  - `CreatePaymentCommand` (Order Service → Payment Service) via HTTP.
-  - `RefundPaymentCommand` (Order/Fulfillment → Payment Service) via MassTransit queue.
-- **Events**
-  - `IPaymentSucceeded` `{ paymentId, orderId, amount, currency, providerReference, timestamp }`
-  - `IPaymentFailed` `{ paymentId, orderId, errorCode, reason }`
-  - `IRefundIssued` `{ paymentId, refundId, amount, timestamp }`
-- Add shared DTOs under `building-blocks/Contracts/Payments/` and register consumers/producers in `BuildingBlocks.csproj`.
-
-## 5. Data Model Sketch
-
-Tables (PostgreSQL + EF Core):
-
-1. `Payments`
-   - `Id (Guid)`
-   - `OrderId (Guid)`
-   - `Status (enum: Pending, RequiresAction, Succeeded, Failed, Refunded)`
-   - `Amount (decimal)` / `Currency (string, ISO-4217)`
-   - `Provider (string)`
-   - `ProviderPaymentId (string)`
-   - `ProviderClientSecret (string, nullable)`
-   - `FailureCode/Message` fields
-   - `CreatedAt`, `UpdatedAt`
-2. `PaymentMethods` (future, for saving tokens)
-3. `Refunds`
-   - `Id (Guid)`
-   - `PaymentId`
-   - `Amount`
-   - `Status`
-   - `ProviderRefundId`
-   - `CreatedAt`, `CompletedAt`
-4. `WebhookEvents`
-   - Raw payload + headers for replay/debugging.
-
-## 6. Provider Integration Layer
-
-- Create `IPaymentProvider` interface with methods `CreateIntent`, `Confirm`, `Capture`, `Refund`, `ParseWebhook`.
-- First implementation `StripePaymentProvider` using Stripe .NET SDK.
-- Support dependency injection via Polly-wrapped HTTP clients for resilience.
-- External credentials via configuration: `PaymentProviders:Stripe:{ApiKey,WebhookSecret}`.
-
-## 7. Operational Requirements
-
-- **Configuration**: `appsettings.json` entries for DB, RabbitMQ, Redis (cache for idempotency tokens), Keycloak, external provider keys.
-- **Logging**: Serilog sinks identical to other services + masking for PAN/token details.
-- **Health Checks**: `/health/ready` verifying DB, RabbitMQ, Stripe connectivity.
-- **Retries**: Exponential backoff for provider calls; outbox pattern for event publishing.
-- **Docker**: Add `services/payment-service/Dockerfile` plus compose entry exposing port `5004` (local) → `8080` (in container).
-
-## 8. Next Actions
-
-1. Scaffold .NET API project (`dotnet new webapi`) under `services/payment-service` and reference `BuildingBlocks`.
-2. Define contracts in `building-blocks/Contracts/Payments/` and update MassTransit registration.
-3. Implement Stripe provider integration (sandbox keys via `.env`).
-4. Wire Order Service to call Payment Service before moving orders to `Processing`.
-5. Document API in Swagger and update API Gateway routes.
+- Add real provider webhooks for refund/reconciliation events beyond payment intents.
+- Implement scheduled reconciliation jobs and dead-letter handling for failed events.
+- Wire Order Service to call the `POST /api/payments` endpoint before transitioning orders into `Processing`.

@@ -114,6 +114,35 @@ services:
       - redis
       - rabbitmq
 
+  payment-service:
+    build:
+      context: ../
+      dockerfile: services/payment-service/Dockerfile
+    container_name: payment-service
+    environment:
+      - ASPNETCORE_ENVIRONMENT=Development
+      - ASPNETCORE_HTTP_PORTS=8080
+      - ConnectionStrings__DefaultConnection=Host=payment-db;Database=paymentdb;Username=paymentuser;Password=paymentpassword
+      - ConnectionStrings__Redis=redis:6379
+      - Redis__InstanceName=PaymentService_
+      - RabbitMQ__Host=rabbitmq
+      - RabbitMQ__UserName=guest
+      - RabbitMQ__Password=guest
+      - Keycloak__AuthServerUrl=http://keycloak:8080/
+      - Keycloak__Realm=ecommerce-realm
+      - Keycloak__Resource=payment-service
+      - PaymentProviders__Stripe__ApiKey=${STRIPE_API_KEY:-}
+      - PaymentProviders__Stripe__WebhookSecret=${STRIPE_WEBHOOK_SECRET:-}
+    ports:
+      - "5004:8080"
+    volumes:
+      - ./logs/payment-service:/app/logs
+    depends_on:
+      - keycloak
+      - payment-db
+      - redis
+      - rabbitmq
+
   api-gateway:
     build:
       context: ../
@@ -130,6 +159,8 @@ services:
       - identity-service
       - catalog-service
       - order-service
+      - inventory-service
+      - payment-service
 
   # Infrastructure
   catalog-db:
@@ -168,6 +199,18 @@ services:
     volumes:
       - inventory_data:/var/lib/postgresql/data
 
+  payment-db:
+    image: postgres:15-alpine
+    container_name: payment-db
+    environment:
+      POSTGRES_DB: paymentdb
+      POSTGRES_USER: paymentuser
+      POSTGRES_PASSWORD: paymentpassword
+    ports:
+      - "5435:5432"
+    volumes:
+      - payment_data:/var/lib/postgresql/data
+
   redis:
     image: redis:alpine
     container_name: redis
@@ -188,3 +231,4 @@ volumes:
   catalog_data:
   order_data:
   inventory_data:
+  payment_data:

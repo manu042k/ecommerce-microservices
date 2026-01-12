@@ -107,6 +107,7 @@ if (app.Environment.IsDevelopment())
         c.SwaggerEndpoint("/doc/catalog/swagger.json", "Catalog Service");
         c.SwaggerEndpoint("/doc/order/swagger.json", "Order Service");
         c.SwaggerEndpoint("/doc/inventory/swagger.json", "Inventory Service");
+        c.SwaggerEndpoint("/doc/payment/swagger.json", "Payment Service");
 
         // OAuth Client Config for the Redirect Flow
         // We load these from configuration (which comes from Env vars in docker-compose)

@@ -27,6 +27,10 @@
             {
                 "name": "Ops",
                 "description": "Operations role for inventory management"
+            },
+            {
+                "name": "Finance",
+                "description": "Finance role for payment operations"
             }
         ]
     },
@@ -98,6 +102,25 @@
             "enabled": true,
             "clientAuthenticatorType": "client-secret",
             "secret": "inventory-secret",
+            "redirectUris": [
+                "*"
+            ],
+            "webOrigins": [
+                "*"
+            ],
+            "publicClient": false,
+            "protocol": "openid-connect",
+            "directAccessGrantsEnabled": true,
+            "serviceAccountsEnabled": true,
+            "standardFlowEnabled": true,
+            "implicitFlowEnabled": false,
+            "fullScopeAllowed": true
+        },
+        {
+            "clientId": "payment-service",
+            "enabled": true,
+            "clientAuthenticatorType": "client-secret",
+            "secret": "payment-secret",
             "redirectUris": [
                 "*"
             ],
