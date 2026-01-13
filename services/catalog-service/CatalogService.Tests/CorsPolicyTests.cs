@@ -1,0 +1,33 @@
+using CatalogService.Tests.Support;
+using Microsoft.AspNetCore.Cors.Infrastructure;
+using Microsoft.AspNetCore.Http;
+
+namespace CatalogService.Tests;
+
+public class CorsPolicyTests : IClassFixture<CatalogServiceApplicationFactory>
+{
+    private readonly CatalogServiceApplicationFactory _factory;
+
+    public CorsPolicyTests(CatalogServiceApplicationFactory factory)
+    {
+        _factory = factory;
+    }
+
+    [Fact]
+    public async Task AllowAllPolicy_PermitsAnyOriginMethodHeader()
+    {
+        // Arrange
+        using var scope = _factory.Services.CreateScope();
+        var provider = scope.ServiceProvider.GetRequiredService<ICorsPolicyProvider>();
+        var context = new DefaultHttpContext();
+
+        // Act
+        var policy = await provider.GetPolicyAsync(context, "AllowAll");
+
+        // Assert
+        policy.Should().NotBeNull();
+        policy!.AllowAnyOrigin.Should().BeTrue();
+        policy.AllowAnyMethod.Should().BeTrue();
+        policy.AllowAnyHeader.Should().BeTrue();
+    }
+}

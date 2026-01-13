@@ -17,6 +17,12 @@
   </ItemGroup>
 
   <ItemGroup>
+    <Compile Remove="IdentityService.Tests\**" />
+    <EmbeddedResource Remove="IdentityService.Tests\**" />
+    <None Remove="IdentityService.Tests\**" />
+  </ItemGroup>
+
+  <ItemGroup>
     <ProjectReference Include="..\..\building-blocks\BuildingBlocks\BuildingBlocks.csproj" />
   </ItemGroup>
 

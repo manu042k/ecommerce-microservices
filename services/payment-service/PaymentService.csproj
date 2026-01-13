@@ -26,6 +26,12 @@
   </ItemGroup>
 
   <ItemGroup>
+    <Compile Remove="PaymentService.Tests\**" />
+    <EmbeddedResource Remove="PaymentService.Tests\**" />
+    <None Remove="PaymentService.Tests\**" />
+  </ItemGroup>
+
+  <ItemGroup>
     <ProjectReference Include="..\..\building-blocks\BuildingBlocks\BuildingBlocks.csproj" />
   </ItemGroup>
 

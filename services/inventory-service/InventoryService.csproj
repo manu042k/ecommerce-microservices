@@ -25,6 +25,12 @@
   </ItemGroup>
 
   <ItemGroup>
+    <Compile Remove="InventoryService.Tests\**" />
+    <EmbeddedResource Remove="InventoryService.Tests\**" />
+    <None Remove="InventoryService.Tests\**" />
+  </ItemGroup>
+
+  <ItemGroup>
     <ProjectReference Include="..\..\building-blocks\BuildingBlocks\BuildingBlocks.csproj" />
   </ItemGroup>
 

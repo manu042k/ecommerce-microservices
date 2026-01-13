@@ -25,6 +25,12 @@
   </ItemGroup>
 
   <ItemGroup>
+    <Compile Remove="FulfillmentService.Tests\**" />
+    <EmbeddedResource Remove="FulfillmentService.Tests\**" />
+    <None Remove="FulfillmentService.Tests\**" />
+  </ItemGroup>
+
+  <ItemGroup>
     <ProjectReference Include="..\..\building-blocks\BuildingBlocks\BuildingBlocks.csproj" />
   </ItemGroup>
 
